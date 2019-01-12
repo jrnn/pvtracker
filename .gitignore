@@ -1,0 +1,3 @@
+client/dist/main*
+node_modules
+.env
