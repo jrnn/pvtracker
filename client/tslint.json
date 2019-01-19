@@ -1,0 +1,28 @@
+{
+  "extends": [
+    "../tslint.common.json",
+    "tslint-react"
+  ],
+  "rules": {
+    "file-name-casing": [
+      true,
+      {
+        "index.tsx": "camel-case",
+        ".tsx": "pascal-case",
+        ".*": "camel-case"
+      }
+    ],
+    "jsx-space-before-trailing-slash": true,
+    "quotemark": [
+      true,
+      "double",
+      "jsx-double",
+      "avoid-template"
+    ],
+    "variable-name": [
+      true,
+      "ban-keywords",
+      "allow-leading-underscore"
+    ]
+  }
+}

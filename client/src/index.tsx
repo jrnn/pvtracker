@@ -2,7 +2,7 @@ import React from "react"
 import ReactDOM from "react-dom"
 import Message from "./Message"
 
-const App = () => {
+const App: React.SFC = () => {
   return (
     <div>
       <Message message={"hello react.js + typescript world"} />

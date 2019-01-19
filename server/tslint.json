@@ -1,0 +1,26 @@
+{
+  "extends": [
+    "../tslint.common.json"
+  ],
+  "rules": {
+    "arrow-return-shorthand": [
+      true,
+      "multiline"
+    ],
+    "file-name-casing": [
+      true,
+      "camel-case"
+    ],
+    "quotemark": [
+      true,
+      "double",
+      "avoid-template"
+    ],
+    "variable-name": [
+      true,
+      "ban-keywords",
+      "check-format",
+      "allow-leading-underscore"
+    ]
+  }
+}

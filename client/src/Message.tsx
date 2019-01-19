@@ -4,7 +4,7 @@ interface Props {
   message?: string
 }
 
-const Message: React.FunctionComponent<Props> = (props) => {
+const Message: React.SFC<Props> = (props) => {
   const style = {
     color: "#850b16",
     padding: "1rem"
