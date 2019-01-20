@@ -3,8 +3,9 @@ import http from "http"
 import helloController from "./controllers/helloController"
 import * as mw from "./utils/mw"
 
-const app = express()
-const server = http.createServer(app)
+export const app = express()
+export const server = http.createServer(app)
+
 const PORT = Number(process.env.PORT || 1337)
 
 app.use(express.static("public"))
@@ -15,5 +16,3 @@ app.use(mw.catchAll)
 server.listen(PORT, () => {
   console.log(`pvtracker now listening on port ${PORT} in ${app.get("env")} mode`)
 })
-
-export default { app, server }
