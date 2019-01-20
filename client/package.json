@@ -1,21 +1,29 @@
 {
   "name": "pvtracker-client",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "react.js client for pvtracker webapp",
   "author": "Juho Juurinen",
   "scripts": {
     "build": "npm run lint && webpack --mode=production",
-    "lint": "tslint -c tslint.json -p tsconfig.json",
+    "lint": "tslint -c tslint.json ./src/** ./test/**",
     "start": "webpack-dev-server --mode=development",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npx jest --verbose"
   },
   "dependencies": {
     "react": "^16.7.0",
     "react-dom": "^16.7.0"
   },
   "devDependencies": {
+    "@types/enzyme": "^3.1.15",
+    "@types/enzyme-adapter-react-16": "^1.0.3",
+    "@types/jest": "^23.3.13",
     "@types/react": "^16.7.18",
     "@types/react-dom": "^16.0.11",
+    "enzyme": "^3.8.0",
+    "enzyme-adapter-react-16": "^1.7.1",
+    "enzyme-to-json": "^3.3.5",
+    "jest": "^23.6.0",
+    "ts-jest": "^23.10.5",
     "ts-loader": "^5.3.3",
     "tslint": "^5.12.1",
     "tslint-react": "^3.6.0",
