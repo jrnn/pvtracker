@@ -13,10 +13,11 @@ describe("just some dummy tests", async () => {
     console.log("preparing to run test suite")
   })
 
-  test("GET / returns 404", async () => {
+  test("GET / returns 200 and landing html page", async () => {
     await api
       .get("/")
-      .expect(404)
+      .expect(200)
+      .expect("content-type", /text\/html/)
   })
 
   test("GET /api returns 200 and a greeting as json", async () => {

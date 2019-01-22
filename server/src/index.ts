@@ -1,5 +1,6 @@
 import express from "express"
 import http from "http"
+import path from "path"
 import helloController from "./controllers/helloController"
 import * as mw from "./utils/mw"
 
@@ -8,7 +9,7 @@ export const server = http.createServer(app)
 
 const PORT = Number(process.env.PORT || 1337)
 
-app.use(express.static("public"))
+app.use(express.static(path.resolve(__dirname, "..", "static")))
 app.use(express.json())
 app.use("/api", new helloController().routes())
 app.use(mw.catchAll)

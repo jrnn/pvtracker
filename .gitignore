@@ -1,4 +1,5 @@
 client/dist/main*
 node_modules
 server/dist
+server/static
 .env

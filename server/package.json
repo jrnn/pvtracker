@@ -1,13 +1,13 @@
 {
   "name": "pvtracker-server",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "node.js server for pvtracker webapp",
   "author": "Juho Juurinen",
   "scripts": {
     "build": "npm run lint && tsc -p .",
     "lint": "tslint -c tslint.json ./src/** ./test/**",
-    "start": "npm run build && node dist/index.js",
-    "test": "npx jest --verbose --runInBand",
+    "start": "npm run build && cross-env NODE_ENV=production node dist/index.js",
+    "test": "cross-env NODE_ENV=test jest --verbose --runInBand",
     "watch": "ts-node-dev --respawn --transpileOnly src/index.ts"
   },
   "dependencies": {
@@ -18,6 +18,7 @@
     "@types/jest": "^23.3.13",
     "@types/node": "^10.12.18",
     "@types/supertest": "^2.0.7",
+    "cross-env": "^5.2.0",
     "jest": "^23.6.0",
     "supertest": "^3.4.1",
     "ts-jest": "^23.10.5",
