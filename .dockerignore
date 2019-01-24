@@ -2,5 +2,7 @@
 client/node_modules
 client/test
 node_modules
+server/dist
 server/node_modules
+server/static
 server/test
