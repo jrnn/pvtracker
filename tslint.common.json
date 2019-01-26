@@ -21,7 +21,6 @@
       true,
       120
     ],
-    "newline-before-return": true,
     "newline-per-chained-call": true,
     "new-parens": true,
     "no-boolean-literal-compare": true,

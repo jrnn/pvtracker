@@ -3,7 +3,7 @@ const webpack = require("webpack")
 
 module.exports = (env, args) => {
   const SERVER_URL = (args.mode === "production")
-    ? "https://FILL-IN-LATER.herokuapp.com"
+    ? "https://pvtrax.herokuapp.com"
     : "http://localhost:1337"
 
   return {
