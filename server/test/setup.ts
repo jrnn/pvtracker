@@ -20,6 +20,7 @@ export const init = async () => {
 
 export const teardown = async () => {
   console.log("Shutting down in-memory mongo database")
+  await mongoose.disconnect()
   await mongoose.connection.close()
     .then(() => console.log("Connection to database closed"))
     .catch((e) => console.log(`Something went wrong = ${e}`))
