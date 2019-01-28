@@ -1,4 +1,5 @@
 import mongoose from "mongoose"
+import * as setup from "../setup"
 import { Account, IAccount } from "../../src/models/account"
 
 if (process.env.NODE_ENV !== "test") {
@@ -18,35 +19,39 @@ const testInvalidAttribute = async <T>(inputs: T[], attribute: string, errorMess
         [ attribute ]: input
       }
       await new Account(_account).validate()
-        .catch((err) => {
+        .catch((error) => {
           errorCount += 1
-          expect(err).toBeInstanceOf(mongoose.Error.ValidationError)
-          expect(err.errors[attribute].message).toEqual(errorMessage)
+          expect(error).toBeInstanceOf(mongoose.Error.ValidationError)
+          expect(error.errors[attribute].message).toEqual(errorMessage)
         })
     })
   )
   expect(errorCount).toBe(inputs.length)
 }
 
+beforeAll(async () => {
+  await setup.init()
+})
+
 describe("Models: Account", () => {
   beforeEach(() => {
     account = {
-      email: "first.last@domain.com",
+      email: "first.last@pvtracker.com",
       firstName: "First",
       lastName: "Last"
     }
   })
 
   it("must have email", async () => {
-    await testInvalidAttribute(emptyInputs, "email", "attribute `email` missing")
+    await testInvalidAttribute(emptyInputs, "email", "Attribute `email` missing")
   })
 
   it("must have first name", async () => {
-    await testInvalidAttribute(emptyInputs, "firstName", "attribute `firstName` missing")
+    await testInvalidAttribute(emptyInputs, "firstName", "Attribute `firstName` missing")
   })
 
   it("must have last name", async () => {
-    await testInvalidAttribute(emptyInputs, "lastName", "attribute `lastName` missing")
+    await testInvalidAttribute(emptyInputs, "lastName", "Attribute `lastName` missing")
   })
 
   it("by default does not have admin rights", () => {
@@ -65,11 +70,16 @@ describe("Models: Account", () => {
       "first.last@domain..com", "first.last@domain,com", "first.last@!#$%&'*+/=?^_`{|}~-.org", "first.last@domain.c",
       "f irst.last@domain.co m", "first.last@@domain.com", "first.last@domain"
     ]
-    await testInvalidAttribute(invalidEmails, "email", "invalid email format")
+    await testInvalidAttribute(invalidEmails, "email", "Invalid email format")
   })
 
   it("can tell its full name", () => {
     const fullName = `${account.firstName} ${account.lastName}`
     expect(new Account(account).fullName()).toEqual(fullName)
   })
+})
+
+afterAll(async () => {
+  console.log("test suite complete, tearing down")
+  await setup.teardown()
 })

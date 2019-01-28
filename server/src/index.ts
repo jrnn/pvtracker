@@ -4,7 +4,9 @@ import path from "path"
 import dotenv from "dotenv"
 import mongoose from "mongoose"
 
-import helloController from "./controllers/helloController"
+import AccountController from "./controllers/accountController"
+import HelloController from "./controllers/helloController"
+import { errorHandler } from "./errors/handler"
 import * as mw from "./utils/mw"
 
 export const app = express()
@@ -13,7 +15,9 @@ dotenv.config()
 
 app.use(express.static(path.resolve(__dirname, "..", "static")))
 app.use(express.json())
-app.use("/api", new helloController().routes())
+app.use("/accounts", new AccountController().routes())
+app.use("/api", new HelloController().routes())
+app.use(errorHandler)
 app.use(mw.catchAll)
 
 if (process.env.NODE_ENV !== "test") {

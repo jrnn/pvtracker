@@ -20,7 +20,7 @@ const schema = new Schema({
     type: String,
     required: [
       true,
-      "attribute `email` missing"
+      "Attribute `email` missing"
     ],
     lowercase: true,
     trim: true,
@@ -31,7 +31,7 @@ const schema = new Schema({
           .trim()
           .toLowerCase())
       },
-      message: "invalid email format"
+      message: "Invalid email format"
     }
   },
   password: {
@@ -41,7 +41,7 @@ const schema = new Schema({
     type: String,
     required: [
       true,
-      "attribute `firstName` missing"
+      "Attribute `firstName` missing"
     ],
     trim: true
   },
@@ -49,7 +49,7 @@ const schema = new Schema({
     type: String,
     required: [
       true,
-      "attribute `lastName` missing"
+      "Attribute `lastName` missing"
     ],
     trim: true
   },
@@ -66,5 +66,18 @@ const schema = new Schema({
 schema.methods.fullName = function() {
   return `${this.firstName} ${this.lastName}`
 }
+
+schema.pre<IAccountDocument>("validate", async function(next) {
+  await this.model("Account")
+    .count({ email: this.email })
+    .where({ _id: { $ne: this._id }})
+    .then((count) => {
+      if (count) {
+        this.invalidate("email", "Email is already in use", this.email)
+      }
+    })
+
+  next()
+})
 
 export const Account: Model<IAccountDocument> = model("Account", schema)
