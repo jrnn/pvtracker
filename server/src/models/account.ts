@@ -69,7 +69,7 @@ schema.methods.fullName = function() {
 
 schema.pre<IAccountDocument>("validate", async function(next) {
   await this.model("Account")
-    .count({ email: this.email })
+    .countDocuments({ email: this.email })
     .where({ _id: { $ne: this._id }})
     .then((count) => {
       if (count) {

@@ -10,6 +10,7 @@ module.exports = {
   "roots": [
     "test"
   ],
+  "setupTestFrameworkScriptFile": "./test/setup.ts",
   "testRegex": "\\.(spec|test)\\.ts$",
   "transform": {
     "^.+\\.ts$": "ts-jest"

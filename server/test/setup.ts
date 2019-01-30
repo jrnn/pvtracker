@@ -1,30 +1,25 @@
-import mongoose from "mongoose"
+import supertest from "supertest"
 import { MongoMemoryServer } from "mongodb-memory-server"
+import { app, db, server } from "../src/index"
 
-let mongoServer: MongoMemoryServer
+export const api = supertest(app)
 
-export const init = async () => {
-  mongoServer = new MongoMemoryServer()
-  const dbUri = await mongoServer.getConnectionString()
-  console.log("Setting up in-memory database for testing")
-  await mongoose
-    .connect(dbUri, {
-      autoReconnect: true,
-      promiseLibrary: global.Promise,
-      reconnectInterval: 1000,
-      useNewUrlParser: true
-    })
-    .then(() => console.log("In-memory mongo database now up and running"))
-    .catch((e) => console.log(`Error setting up in-memory database = ${e}`))
+let dbServer: MongoMemoryServer
+
+if (process.env.NODE_ENV !== "test") {
+  console.error("Tests must be run in test mode")
+  server.close()
+  process.exit(1)
 }
 
-export const teardown = async () => {
-  console.log("Shutting down in-memory mongo database")
-  await mongoose.disconnect()
-  await mongoose.connection.close()
-    .then(() => console.log("Connection to database closed"))
-    .catch((e) => console.log(`Something went wrong = ${e}`))
-  await mongoServer.stop()
-    .then(() => console.log("In-memory database successfully stopped"))
-    .catch((e) => console.log(`Something went wrong = ${e}`))
-}
+beforeAll(async () => {
+  dbServer = new MongoMemoryServer()
+  const dbUri = await dbServer.getConnectionString()
+  db.connect(dbUri, "in-memory mongo server")
+})
+
+afterAll(async () => {
+  await db.disconnect()
+  await dbServer.stop()
+  server.close()
+})

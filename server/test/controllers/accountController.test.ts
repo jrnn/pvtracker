@@ -1,15 +1,7 @@
-import { app, server } from "../../src/index"
-import supertest from "supertest"
-import * as setup from "../setup"
+import { api } from "../setup"
 import { Account, IAccount, IAccountDocument } from "../../src/models/account"
 
-const api = supertest(app)
-const uri = "/accounts"
-
-if (process.env.NODE_ENV !== "test") {
-  server.close()
-  throw new Error("Tests must be run in test mode")
-}
+const root = "/accounts"
 
 const init = async () => {
   const accounts = [
@@ -29,7 +21,7 @@ const init = async () => {
       lastName: "Squarepants"
     }
   ]
-  await Account.remove({}).exec()
+  await Account.deleteMany({}).exec()
   await Promise.all(
     accounts.map(async (a) =>
       await new Account(a).save()
@@ -42,12 +34,8 @@ const pickRandom = <T>(array: T[]) => {
   return array[index]
 }
 
-beforeAll(async () => {
-  await setup.init()
-})
-
 describe("API: Account", async () => {
-  describe(`GET ${uri}`, async () => {
+  describe(`GET ${root}`, async () => {
     beforeAll(async () => {
       await init()
     })
@@ -57,7 +45,7 @@ describe("API: Account", async () => {
       const emails = accounts.map((a) => a.email)
 
       const res = await api
-        .get(`${uri}`)
+        .get(`${root}`)
         .expect(200)
         .expect("content-type", /application\/json/)
 
@@ -66,13 +54,13 @@ describe("API: Account", async () => {
     })
   })
 
-  describe(`GET ${uri}/:id`, async () => {
+  describe(`GET ${root}/:id`, async () => {
     it("returns the correct account", async () => {
       const accounts = await Account.find().exec()
       const account = pickRandom(accounts)
 
       const res = await api
-        .get(`${uri}/${account._id}`)
+        .get(`${root}/${account._id}`)
         .expect(200)
         .expect("content-type", /application\/json/)
 
@@ -83,7 +71,7 @@ describe("API: Account", async () => {
 
     it("fails if account does not exit", async () => {
       const res = await api
-        .get(`${uri}/${new Account()._id}`)
+        .get(`${root}/${new Account()._id}`)
         .expect(404)
 
       expect(res.body.name).toEqual("NotFoundError")
@@ -91,14 +79,14 @@ describe("API: Account", async () => {
 
     it("fails if invalid id", async () => {
       const res = await api
-        .get(`${uri}/THIS_IS_NOT_A_VALID_ID`)
+        .get(`${root}/THIS_IS_NOT_A_VALID_ID`)
         .expect(400)
 
       expect(res.body.name).toEqual("BadRequestError")
     })
   })
 
-  describe(`POST ${uri}`, async () => {
+  describe(`POST ${root}`, async () => {
     let account: IAccount
     let accountsBefore: IAccountDocument[]
 
@@ -113,7 +101,7 @@ describe("API: Account", async () => {
 
     it("creates a new account", async () => {
       const res = await api
-        .post(`${uri}`)
+        .post(`${root}`)
         .send(account)
         .expect(201)
         .expect("content-type", /application\/json/)
@@ -135,7 +123,7 @@ describe("API: Account", async () => {
     it("fails if firstName is missing", async () => {
       const { firstName, ..._account } = account
       const res = await api
-        .post(`${uri}`)
+        .post(`${root}`)
         .send(_account)
         .expect(400)
 
@@ -147,7 +135,7 @@ describe("API: Account", async () => {
     it("fails if lastName is missing", async () => {
       const { lastName, ..._account } = account
       const res = await api
-        .post(`${uri}`)
+        .post(`${root}`)
         .send(_account)
         .expect(400)
 
@@ -159,7 +147,7 @@ describe("API: Account", async () => {
     it("fails if email is missing", async () => {
       const { email, ..._account } = account
       const res = await api
-        .post(`${uri}`)
+        .post(`${root}`)
         .send(_account)
         .expect(400)
 
@@ -171,7 +159,7 @@ describe("API: Account", async () => {
     it("fails if email format is invalid", async () => {
       account.email = "THIS_IS_NOT_A_VALID_EMAIL"
       const res = await api
-        .post(`${uri}`)
+        .post(`${root}`)
         .send(account)
         .expect(400)
 
@@ -183,7 +171,7 @@ describe("API: Account", async () => {
     it("fails if email is already associated with another account", async () => {
       account.email = pickRandom(accountsBefore).email
       const res = await api
-        .post(`${uri}`)
+        .post(`${root}`)
         .send(account)
         .expect(400)
 
@@ -192,10 +180,4 @@ describe("API: Account", async () => {
       expect(res.body.name).toEqual("ValidationError")
     })
   })
-})
-
-afterAll(async () => {
-  console.log("test suite complete, tearing down")
-  await setup.teardown()
-  server.close()
 })

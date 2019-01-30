@@ -1,10 +1,5 @@
 import mongoose from "mongoose"
-import * as setup from "../setup"
 import { Account, IAccount } from "../../src/models/account"
-
-if (process.env.NODE_ENV !== "test") {
-  throw new Error("Tests must be run in test mode")
-}
 
 let account: IAccount
 
@@ -28,10 +23,6 @@ const testInvalidAttribute = async <T>(inputs: T[], attribute: string, errorMess
   )
   expect(errorCount).toBe(inputs.length)
 }
-
-beforeAll(async () => {
-  await setup.init()
-})
 
 describe("Models: Account", () => {
   beforeEach(() => {
@@ -77,9 +68,4 @@ describe("Models: Account", () => {
     const fullName = `${account.firstName} ${account.lastName}`
     expect(new Account(account).fullName()).toEqual(fullName)
   })
-})
-
-afterAll(async () => {
-  console.log("test suite complete, tearing down")
-  await setup.teardown()
 })

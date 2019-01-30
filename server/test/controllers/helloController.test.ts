@@ -1,23 +1,6 @@
-import { app, server } from "../../src/index"
-import supertest from "supertest"
-import * as setup from "../setup"
-
-const api = supertest(app)
-
-if (process.env.NODE_ENV !== "test") {
-  server.close()
-  throw new Error("Tests must be run in test mode")
-}
-
-beforeAll(async () => {
-  await setup.init()
-})
+import { api } from "../setup"
 
 describe("just some dummy tests", async () => {
-  beforeAll(async () => {
-    console.log("preparing to run test suite")
-  })
-
   it("GET / returns 404", async () => {
     await api
       .get("/")
@@ -43,10 +26,4 @@ describe("just some dummy tests", async () => {
     expect(res.body)
       .toEqual("the owls are not what they seem")
   })
-})
-
-afterAll(async () => {
-  console.log("test suite complete, tearing down")
-  await setup.teardown()
-  server.close()
 })

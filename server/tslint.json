@@ -7,10 +7,6 @@
       true,
       "multiline"
     ],
-    "file-name-casing": [
-      true,
-      "camel-case"
-    ],
     "quotemark": [
       true,
       "double",
