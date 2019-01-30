@@ -10,27 +10,27 @@
     "test": "cross-env NODE_ENV=test jest --verbose"
   },
   "dependencies": {
+    "@types/react": "^16.7.18",
+    "@types/react-dom": "^16.0.11",
     "react": "^16.7.0",
-    "react-dom": "^16.7.0"
+    "react-dom": "^16.7.0",
+    "ts-loader": "^5.3.3",
+    "tslint": "^5.12.1",
+    "tslint-react": "^3.6.0",
+    "typescript": "^3.2.2",
+    "webpack": "^4.28.4",
+    "webpack-cli": "^3.2.1"
   },
   "devDependencies": {
     "@types/enzyme": "^3.1.15",
     "@types/enzyme-adapter-react-16": "^1.0.3",
     "@types/jest": "^23.3.13",
-    "@types/react": "^16.7.18",
-    "@types/react-dom": "^16.0.11",
     "cross-env": "^5.2.0",
     "enzyme": "^3.8.0",
     "enzyme-adapter-react-16": "^1.7.1",
     "enzyme-to-json": "^3.3.5",
     "jest": "^23.6.0",
     "ts-jest": "^23.10.5",
-    "ts-loader": "^5.3.3",
-    "tslint": "^5.12.1",
-    "tslint-react": "^3.6.0",
-    "typescript": "^3.2.2",
-    "webpack": "^4.28.4",
-    "webpack-cli": "^3.2.1",
     "webpack-dev-server": "^3.1.14"
   },
   "private": true,
