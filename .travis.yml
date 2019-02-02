@@ -13,8 +13,10 @@ install:
   - cd client && npm install
   - cd ../server && npm install
 script:
-  - cd ../client && npm run lint && npm test
-  - cd ../server && npm run lint && npm test
+  - cd ../client && npm run lint && npm test -- --coverage
+  - cd ../server && npm run lint && npm test -- --coverage
+  - cat ../client/coverage/lcov.info >> ./coverage/lcov.info
+  - cd .. && cat ./server/coverage/lcov.info | ./server/node_modules/coveralls/bin/coveralls.js
 deploy:
   provider: script
   script:

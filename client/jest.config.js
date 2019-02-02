@@ -1,4 +1,12 @@
 module.exports = {
+  "coveragePathIgnorePatterns": [
+    "/node_modules/",
+    "/test/"
+  ],
+  "coverageReporters": [
+    "lcov",
+    "text"
+  ],
   "moduleFileExtensions": [
     "ts",
     "tsx",

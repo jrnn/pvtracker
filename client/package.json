@@ -1,6 +1,6 @@
 {
   "name": "pvtracker-client",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "react.js client for pvtracker webapp",
   "author": "Juho Juurinen",
   "scripts": {

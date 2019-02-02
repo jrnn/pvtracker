@@ -1,4 +1,12 @@
 module.exports = {
+  "coveragePathIgnorePatterns": [
+    "/node_modules/",
+    "/test/"
+  ],
+  "coverageReporters": [
+    "lcov",
+    "text"
+  ],
   "moduleFileExtensions": [
     "ts",
     "tsx",
@@ -10,7 +18,7 @@ module.exports = {
   "roots": [
     "test"
   ],
-  "setupTestFrameworkScriptFile": "./test/setup.ts",
+  "setupTestFrameworkScriptFile": "<rootDir>/test/setup.ts",
   "testRegex": "\\.(spec|test)\\.ts$",
   "transform": {
     "^.+\\.ts$": "ts-jest"

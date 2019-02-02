@@ -1,5 +1,7 @@
-client/dist/main*
-node_modules
-server/dist
-server/static
 .env
+/client/coverage
+/client/dist/main*
+/client/node_modules
+/server/coverage
+/server/dist
+/server/node_modules
