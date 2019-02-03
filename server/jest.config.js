@@ -19,6 +19,7 @@ module.exports = {
     "test"
   ],
   "setupTestFrameworkScriptFile": "<rootDir>/test/setup.ts",
+  "testEnvironment": "node",
   "testRegex": "\\.(spec|test)\\.ts$",
   "transform": {
     "^.+\\.ts$": "ts-jest"

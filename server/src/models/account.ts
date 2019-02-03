@@ -13,6 +13,7 @@ export interface IAccountDocument extends Document, IAccount {
   createdAt: Date,
   updatedAt: Date,
   fullName(): string
+  patch(account: IAccount): void
 }
 
 const schema = new Schema({
@@ -67,6 +68,15 @@ schema.methods.fullName = function() {
   return `${this.firstName} ${this.lastName}`
 }
 
+schema.methods.patch = function(account: IAccount) {
+  const okToPatch: (keyof IAccount)[] = [ "email", "firstName", "lastName" ]
+  okToPatch.map((key) => {
+    if (key in account) {
+      this[key] = account[key]
+    }
+  })
+}
+
 schema.pre<IAccountDocument>("validate", async function(next) {
   await this.model("Account")
     .countDocuments({ email: this.email })
@@ -76,7 +86,6 @@ schema.pre<IAccountDocument>("validate", async function(next) {
         this.invalidate("email", "Email is already in use", this.email)
       }
     })
-
   next()
 })
 

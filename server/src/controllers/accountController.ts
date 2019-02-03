@@ -31,6 +31,19 @@ export default class AccountController extends Controller {
         .json(account)
     }))
 
+    this.router.put("/:id", wrapper(async (req: Request, res: Response) => {
+      const { id } = req.params
+      const account = await Account.findById(id).exec()
+      if (!account) {
+        throw new NotFoundError()
+      }
+      account.patch(req.body)
+      const patched = await account.save()
+      res
+        .status(200)
+        .json(patched)
+    }))
+
     return this.router
   }
 }
