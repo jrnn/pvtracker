@@ -21,7 +21,7 @@ const schema = new Schema({
     type: String,
     required: [
       true,
-      "Attribute `email` missing"
+      "Attribute 'email' missing"
     ],
     lowercase: true,
     trim: true,
@@ -42,7 +42,7 @@ const schema = new Schema({
     type: String,
     required: [
       true,
-      "Attribute `firstName` missing"
+      "Attribute 'firstName' missing"
     ],
     trim: true
   },
@@ -50,7 +50,7 @@ const schema = new Schema({
     type: String,
     required: [
       true,
-      "Attribute `lastName` missing"
+      "Attribute 'lastName' missing"
     ],
     trim: true
   },

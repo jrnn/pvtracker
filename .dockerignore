@@ -1,8 +1,9 @@
+.env
 .git
-client/node_modules
-client/test
-node_modules
-server/dist
-server/node_modules
-server/static
-server/test
+/client/coverage
+/client/node_modules
+/client/test
+/server/coverage
+/server/dist
+/server/node_modules
+/server/test

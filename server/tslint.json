@@ -3,10 +3,6 @@
     "../tslint.common.json"
   ],
   "rules": {
-    "arrow-return-shorthand": [
-      true,
-      "multiline"
-    ],
     "quotemark": [
       true,
       "double",

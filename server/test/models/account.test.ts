@@ -34,15 +34,15 @@ describe("Models: Account", () => {
   })
 
   it("must have email", async () => {
-    await testInvalidAttribute(emptyInputs, "email", "Attribute `email` missing")
+    await testInvalidAttribute(emptyInputs, "email", "Attribute 'email' missing")
   })
 
   it("must have first name", async () => {
-    await testInvalidAttribute(emptyInputs, "firstName", "Attribute `firstName` missing")
+    await testInvalidAttribute(emptyInputs, "firstName", "Attribute 'firstName' missing")
   })
 
   it("must have last name", async () => {
-    await testInvalidAttribute(emptyInputs, "lastName", "Attribute `lastName` missing")
+    await testInvalidAttribute(emptyInputs, "lastName", "Attribute 'lastName' missing")
   })
 
   it("by default does not have admin rights", () => {

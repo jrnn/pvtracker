@@ -1,8 +1,8 @@
 import { api } from "../setup"
 import { Account, IAccount, IAccountDocument } from "../../src/models/account"
+import { Test } from "supertest"
 
 const root = "/accounts"
-const emptyInputs = [ "", " ", null ]  // notice: undefined ok in PUT
 
 const init = async () => {
   const accounts = [
@@ -24,8 +24,8 @@ const init = async () => {
   ]
   await Account.deleteMany({}).exec()
   await Promise.all(
-    accounts.map(async (a) =>
-      await new Account(a).save()
+    accounts.map((a) =>
+      new Account(a).save()
     )
   )
 }
@@ -33,6 +33,15 @@ const init = async () => {
 const pickRandom = <T>(array: T[]) => {
   const index = Math.floor(Math.random() * array.length)
   return array[index]
+}
+
+const throwsError = (test: Test, expectedStatus: number, expectedError: string) => {
+  return test
+    .expect(expectedStatus)
+    .expect("content-type", /application\/json/)
+    .then((res) => {
+      expect(res.body.name).toEqual(expectedError)
+    })
 }
 
 describe("API: Account", async () => {
@@ -45,7 +54,7 @@ describe("API: Account", async () => {
       const accounts = await Account.find().exec()
       const emails = accounts.map((a) => a.email)
       await api
-        .get(`${root}`)
+        .get(root)
         .expect(200)
         .expect("content-type", /application\/json/)
         .then((res) => {
@@ -71,26 +80,20 @@ describe("API: Account", async () => {
     })
 
     it("fails if account does not exit", async () => {
-      await api
-        .get(`${root}/${new Account()._id}`)
-        .expect(404).then((res) => {
-          expect(res.body.name).toEqual("NotFoundError")
-        })
+      const req = api.get(`${root}/${new Account()._id}`)
+      await throwsError(req, 404, "NotFoundError")
     })
 
     it("fails with invalid id", async () => {
-      await api
-        .get(`${root}/THIS_IS_NOT_A_VALID_ID`)
-        .expect(400)
-        .then((res) => {
-          expect(res.body.name).toEqual("BadRequestError")
-        })
+      const req = api.get(`${root}/THIS_IS_NOT_A_VALID_ID`)
+      await throwsError(req, 400, "BadRequestError")
     })
   })
 
   describe(`POST ${root}`, async () => {
     let account: IAccount
     let accountsBefore: IAccountDocument[]
+    const emptyValues = [ "", " ", null, undefined ]
 
     beforeEach(async () => {
       account = {
@@ -107,24 +110,43 @@ describe("API: Account", async () => {
         .exec()
     })
 
+    const post = (payload: any): Test => {
+      return api
+        .post(root)
+        .send(payload)
+    }
+
+    const hasNoEffect = async (test: Function) => {
+      await test()
+      const accountsAfter = await Account.find().exec()
+      expect(accountsAfter.length).toBe(accountsBefore.length)
+    }
+
+    const invalidationTest = async (key: string, values: any[]) => {
+      await hasNoEffect(async () => {
+        await Promise.all(
+          values.map((value) => {
+            const _account = { ...account, [key]: value }
+            return throwsError(post(_account), 400, "ValidationError")
+          }))
+      })
+    }
+
     it("creates a new account", async () => {
-      const res = await api
-        .post(`${root}`)
-        .send(account)
+      const res = await post(account)
         .expect(201)
         .expect("content-type", /application\/json/)
 
-      const { _id } = res.body
       const accountsAfter = await Account.find().exec()
+      expect(accountsAfter.length).toBe(accountsBefore.length + 1)
+
       accountsAfter
-        .filter((a) => a._id === _id)
+        .filter((a) => a._id === res.body._id)
         .map((a) => {
           expect(a.email).toEqual(account.email)
           expect(a.firstName).toEqual(account.firstName)
           expect(a.lastName).toEqual(account.lastName)
         })
-
-      expect(accountsAfter.length).toBe(accountsBefore.length + 1)
     })
 
     it("does not affect other accounts in database", async () => {
@@ -132,78 +154,37 @@ describe("API: Account", async () => {
     })
 
     it("fails if firstName is missing", async () => {
-      const { firstName, ..._account } = account
-      await api
-        .post(`${root}`)
-        .send(_account)
-        .expect(400)
-        .then((res) => {
-          expect(res.body.name).toEqual("ValidationError")
-        })
-
-      const accountsAfter = await Account.find().exec()
-      expect(accountsAfter.length).toBe(accountsBefore.length)
+      await invalidationTest("firstName", emptyValues)
     })
 
     it("fails if lastName is missing", async () => {
-      const { lastName, ..._account } = account
-      await api
-        .post(`${root}`)
-        .send(_account)
-        .expect(400)
-        .then((res) => {
-          expect(res.body.name).toEqual("ValidationError")
-        })
-
-      const accountsAfter = await Account.find().exec()
-      expect(accountsAfter.length).toBe(accountsBefore.length)
+      await invalidationTest("lastName", emptyValues)
     })
 
     it("fails if email is missing", async () => {
-      const { email, ..._account } = account
-      await api
-        .post(`${root}`)
-        .send(_account)
-        .expect(400)
-        .then((res) => {
-          expect(res.body.name).toEqual("ValidationError")
-        })
-
-      const accountsAfter = await Account.find().exec()
-      expect(accountsAfter.length).toBe(accountsBefore.length)
+      await invalidationTest("email", emptyValues)
     })
 
     it("fails if email format is invalid", async () => {
-      account.email = "THIS_IS_NOT_A_VALID_EMAIL"
-      await api
-        .post(`${root}`)
-        .send(account)
-        .expect(400)
-        .then((res) => {
-          expect(res.body.name).toEqual("ValidationError")
-        })
-
-      const accountsAfter = await Account.find().exec()
-      expect(accountsAfter.length).toBe(accountsBefore.length)
+      // TODO: test with array of malformed emails?
+      await hasNoEffect(async () => {
+        account.email = "THIS_IS_NOT_A_VALID_EMAIL"
+        await throwsError(post(account), 400, "ValidationError")
+      })
     })
 
     it("fails if email is already associated with another account", async () => {
-      account.email = pickRandom(accountsBefore).email
-      await api
-        .post(`${root}`)
-        .send(account)
-        .expect(400)
-        .then((res) => {
-          expect(res.body.name).toEqual("ValidationError")
-        })
-
-      const accountsAfter = await Account.find().exec()
-      expect(accountsAfter.length).toBe(accountsBefore.length)
+      const emails = accountsBefore.map((a) => a.email)
+      await invalidationTest("email", emails)
     })
   })
 
   describe(`PUT ${root}/:id`, async () => {
+    let put: (payload: any) => Test
+    let patch: IAccount
     let original: IAccountDocument
+
+    const emptyValues = [ "", " ", null ]
 
     beforeEach(async () => {
       const account = {
@@ -211,23 +192,38 @@ describe("API: Account", async () => {
         firstName: "Boaty",
         lastName: "McBoatface"
       }
-      original = await new Account(account).save()
-    })
-
-    afterEach(async () => {
-      await Account.deleteOne({ _id: original._id }).exec()
-    })
-
-    it("patches the correct account", async () => {
-      const patch = {
+      patch = {
         email: "ned.flanders@pvtracker.com",
         firstName: "Ned",
         lastName: "Flanders"
       }
-      await api
-        .put(`${root}/${original._id}`)
-        .send(patch)
+      original = await new Account(account).save()
+
+      put = (payload: any): Test => {
+        return api
+          .put(`${root}/${original._id}`)
+          .send(payload)
+      }
+    })
+
+    afterEach(async () => {
+      await Account
+        .deleteOne({ _id: original._id })
+        .exec()
+    })
+
+    const invalidationTest = async (key: string, values: any[]) => {
+      await Promise.all(
+        values.map((value) => {
+          const _patch = { ...patch, [key]: value }
+          return throwsError(put(_patch), 400, "ValidationError")
+        }))
+    }
+
+    it("patches the correct account", async () => {
+      await put(patch)
         .expect(200)
+        .expect("content-type", /application\/json/)
 
       await Account
         .findById(original._id)
@@ -244,10 +240,9 @@ describe("API: Account", async () => {
 
     it("ignores attempts to change 'isAdmin' property", async () => {
       const { isAdmin } = original
-      await api
-        .put(`${root}/${original._id}`)
-        .send({ isAdmin: !isAdmin })
+      await put({ isAdmin: !isAdmin })
         .expect(200)
+        .expect("content-type", /application\/json/)
 
       await Account
         .findById(original._id)
@@ -258,10 +253,9 @@ describe("API: Account", async () => {
 
     it("ignores attempts to change 'hasAccess' property", async () => {
       const { hasAccess } = original
-      await api
-        .put(`${root}/${original._id}`)
-        .send({ hasAccess: !hasAccess })
+      await put ({ hasAccess: !hasAccess })
         .expect(200)
+        .expect("content-type", /application\/json/)
 
       await Account
         .findById(original._id)
@@ -271,89 +265,42 @@ describe("API: Account", async () => {
     })
 
     it("fails if account does not exit", async () => {
-      await api
+      const req = api
         .put(`${root}/${new Account()._id}`)
-        .expect(404)
-        .then((res) => {
-          expect(res.body.name).toEqual("NotFoundError")
-        })
+        .send(patch)
+      await throwsError(req, 404, "NotFoundError")
     })
 
     it("fails if invalid id", async () => {
-      await api
+      const req = api
         .put(`${root}/THIS_IS_NOT_A_VALID_ID`)
-        .expect(400)
-        .then((res) => {
-          expect(res.body.name).toEqual("BadRequestError")
-        })
+        .send(patch)
+      await throwsError(req, 400, "BadRequestError")
     })
 
     it("fails if trying to patch empty firstName", async () => {
-      await Promise.all(
-        emptyInputs.map(async (input) => {
-          await api
-            .put(`${root}/${original._id}`)
-            .send({ firstName: input })
-            .expect(400)
-            .then((res) => {
-              expect(res.body.name).toEqual("ValidationError")
-            })
-          }))
+      await invalidationTest("firstName", emptyValues)
     })
 
     it("fails if trying to patch empty lastName", async () => {
-      await Promise.all(
-        emptyInputs.map(async (input) => {
-          await api
-            .put(`${root}/${original._id}`)
-            .send({ lastName: input })
-            .expect(400)
-            .then((res) => {
-              expect(res.body.name).toEqual("ValidationError")
-            })
-          }))
+      await invalidationTest("lastName", emptyValues)
     })
 
     it("fails if trying to patch empty email", async () => {
-      await Promise.all(
-        emptyInputs.map(async (input) => {
-          await api
-            .put(`${root}/${original._id}`)
-            .send({ email: input })
-            .expect(400)
-            .then((res) => {
-              expect(res.body.name).toEqual("ValidationError")
-            })
-          }))
+      await invalidationTest("email", emptyValues)
     })
 
     it("fails if trying to patch email with invalid format", async () => {
       // TODO: test with array of malformed emails?
-      await api
-        .put(`${root}/${original._id}`)
-        .send({ email: "THIS_IS_NOT_A_VALID_EMAIL" })
-        .expect(400)
-        .then((res) => {
-          expect(res.body.name).toEqual("ValidationError")
-        })
+      const _patch = { ...patch, email: "THIS_IS_NOT_A_VALID_EMAIL" }
+      await throwsError(put(_patch), 400, "ValidationError")
     })
 
     it("fails if email is already associated with another account", async () => {
       const accounts = await Account
         .find({ _id: { $ne: original._id }})
         .exec()
-
-      await Promise.all(
-        accounts.map((a) => a.email).map(async (email) => {
-          await api
-            .put(`${root}/${original._id}`)
-            .send({ email })
-            .expect(400)
-            .then((res) => {
-              expect(res.body.name).toEqual("ValidationError")
-            })
-        })
-      )
+      await invalidationTest("email", accounts.map((a) => a.email))
     })
   })
 })

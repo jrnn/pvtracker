@@ -1,6 +1,6 @@
 {
   "name": "pvtracker-server",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "description": "node.js server for pvtracker webapp",
   "author": "Juho Juurinen",
   "scripts": {
