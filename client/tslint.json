@@ -12,6 +12,7 @@
         ".*": "camel-case"
       }
     ],
+    "jsx-boolean-value": false,
     "jsx-no-multiline-js": false,
     "jsx-space-before-trailing-slash": true,
     "quotemark": [

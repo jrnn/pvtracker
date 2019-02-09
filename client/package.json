@@ -1,6 +1,6 @@
 {
   "name": "pvtracker-client",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "react.js client for pvtracker webapp",
   "author": "Juho Juurinen",
   "scripts": {
@@ -10,6 +10,7 @@
     "test": "cross-env NODE_ENV=test jest --verbose"
   },
   "dependencies": {
+    "@material-ui/core": "^3.9.2",
     "@types/react": "^16.7.18",
     "@types/react-dom": "^16.0.11",
     "react": "^16.7.0",

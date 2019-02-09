@@ -1,19 +1,17 @@
-import React from "react"
+import React, { FunctionComponent } from "react"
 import ReactDOM from "react-dom"
+import Grid from "@material-ui/core/Grid"
 
-import Clickable from "./Clickable"
-import Message from "./Message"
+import AccountForm from "./AccountForm"
 
-const App: React.FunctionComponent = () => {
+const App: FunctionComponent = () => {
   return (
-    <div>
-      <Message message="hello react.js + typescript world" />
-      <Clickable
-        message="click here to learn a secret"
-        secret="the owls are not what they seem"
-      />
-      <Message />
-    </div>
+    <Grid
+      container
+      justify="center"
+    >
+      <AccountForm />
+    </Grid>
   )
 }
 
