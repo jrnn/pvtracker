@@ -1,7 +1,6 @@
 module.exports = {
-  "coveragePathIgnorePatterns": [
-    "/node_modules/",
-    "/test/"
+  "collectCoverageFrom": [
+    "<rootDir>/src/**/*.{ts,tsx}"
   ],
   "coverageReporters": [
     "lcov",
@@ -15,14 +14,15 @@ module.exports = {
     "json",
     "node"
   ],
-  "roots": [
-    "test"
-  ],
+  "rootDir": ".",
   "setupFiles": [
     "<rootDir>/test/setupTests.ts"
   ],
   "snapshotSerializers": [
     "enzyme-to-json/serializer"
+  ],
+  "testPathIgnorePatterns": [
+    "<rootDir>/node_modules/"
   ],
   "testRegex": "\\.(spec|test)\\.tsx?$",
   "transform": {

@@ -1,7 +1,6 @@
 import React, { FunctionComponent } from "react"
 import ReactDOM from "react-dom"
-import Grid from "@material-ui/core/Grid"
-
+import { Grid } from "@material-ui/core"
 import AccountForm from "./AccountForm"
 
 const App: FunctionComponent = () => {

@@ -1,42 +1,71 @@
-import React, { ChangeEvent, Component } from "react"
-import Button from "@material-ui/core/Button"
-import Checkbox from "@material-ui/core/Checkbox"
-import FormControlLabel from "@material-ui/core/FormControlLabel"
-import FormGroup from "@material-ui/core/FormGroup"
-import TextField from "@material-ui/core/TextField"
-import Typography from "@material-ui/core/Typography"
+import React, { MouseEvent } from "react"
+import { Button, FormGroup, Typography } from "@material-ui/core"
+import Form from "./Form"
+import CheckboxField, { initCheckboxField } from "./CheckboxField"
+import InputField, { initInputField } from "./InputField"
+import { FormFields, FormFieldState } from "./interfaces"
+import { EmailFormat, NotEmpty } from "./validators"
 
-class AccountForm extends Component {
+type State = {
+  email: FormFieldState<string>
+  firstName: FormFieldState<string>
+  hasAccess: FormFieldState<boolean>
+  isAdmin: FormFieldState<boolean>
+  lastName: FormFieldState<string>
+}
+
+const stateKeys: (keyof State)[] = [
+  "email",
+  "firstName",
+  "hasAccess",
+  "lastName",
+  "isAdmin"
+]
+
+const fields: FormFields = {
+  email: {
+    label: "Email",
+    name: "email",
+    validators: [ EmailFormat ]
+  },
+  firstName: {
+    label: "First name",
+    name: "firstName",
+    validators: [ NotEmpty ]
+  },
+  hasAccess: {
+    label: "Has access rights?",
+    name: "hasAccess",
+    validators: []
+  },
+  isAdmin: {
+    label: "Administrator?",
+    name: "isAdmin",
+    validators: []
+  },
+  lastName: {
+    label: "Last name",
+    name: "lastName",
+    validators: [ NotEmpty ]
+  }
+}
+
+class AccountForm extends Form<State> {
   state = {
-    email: "",
-    firstName: "",
-    hasAccess: true,
-    isAdmin: false,
-    lastName: ""
+    email: initInputField(),
+    firstName: initInputField(),
+    hasAccess: initCheckboxField(true),
+    lastName: initInputField(),
+    isAdmin: initCheckboxField()
   }
 
-  handleTextChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    this.setState((prevState) => {
-      return {
-        ...prevState,
-        [name]: value
-      }
-    })
+  submit = (e: MouseEvent) => {
+    e.preventDefault()
+    this.resetBaseValues(stateKeys)
   }
 
-  toggleCheckbox = (e: ChangeEvent<HTMLInputElement>) => {
-    const { checked, name } = e.target
-    this.setState((prevState) => {
-      return {
-        ...prevState,
-        [name]: checked
-      }
-    })
-  }
-
-  render () {
-    return (
+  render = () => {
+    return(
       <form>
         <Typography
           paragraph
@@ -44,63 +73,37 @@ class AccountForm extends Component {
         >
           Create new account
         </Typography>
-        <TextField
-          fullWidth
-          id="firstName"
-          label="First name"
-          margin="normal"
-          name="firstName"
-          onChange={this.handleTextChange}
-          value={this.state.firstName}
+        <InputField
+          handleChange={this.handleChange}
+          props={fields.firstName}
+          state={this.state.firstName}
         />
-        <TextField
-          fullWidth
-          id="lastName"
-          label="Last name"
-          margin="normal"
-          name="lastName"
-          onChange={this.handleTextChange}
-          value={this.state.lastName}
+        <InputField
+          handleChange={this.handleChange}
+          props={fields.lastName}
+          state={this.state.lastName}
         />
-        <TextField
-          fullWidth
-          id="email"
-          label="Email"
-          margin="normal"
-          name="email"
-          onChange={this.handleTextChange}
-          type="email"
-          value={this.state.email}
+        <InputField
+          handleChange={this.handleChange}
+          props={fields.email}
+          state={this.state.email}
         />
         <FormGroup>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={this.state.isAdmin}
-                color="primary"
-                id="isAdmin"
-                name="isAdmin"
-                onChange={this.toggleCheckbox}
-              />
-            }
-            label="Administrator?"
+          <CheckboxField
+            handleChange={this.handleChange}
+            props={fields.isAdmin}
+            state={this.state.isAdmin}
           />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={this.state.hasAccess}
-                color="primary"
-                id="hasAccess"
-                name="hasAccess"
-                onChange={this.toggleCheckbox}
-              />
-            }
-            label="Has access rights?"
+          <CheckboxField
+            handleChange={this.handleChange}
+            props={fields.hasAccess}
+            state={this.state.hasAccess}
           />
         </FormGroup>
         <Button
           color="primary"
           fullWidth
+          onClick={this.submit}
           variant="outlined"
         >
           Submit
