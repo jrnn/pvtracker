@@ -1,7 +1,10 @@
 import React, { FunctionComponent } from "react"
-import ReactDOM from "react-dom"
+import { render } from "react-dom"
+import { Provider } from "react-redux"
 import { Grid } from "@material-ui/core"
+import { store } from "./store"
 import AccountForm from "./AccountForm"
+import TempListContainer from "./TempListContainer"
 
 const App: FunctionComponent = () => {
   return (
@@ -10,11 +13,14 @@ const App: FunctionComponent = () => {
       justify="center"
     >
       <AccountForm />
+      <TempListContainer />
     </Grid>
   )
 }
 
-ReactDOM.render(
-  <App />,
+render(
+  <Provider store={store}>
+    <App />
+  </Provider>,
   document.getElementById("root")
 )
