@@ -8,10 +8,9 @@
 import express from "express"
 import path from "path"
 
-import AccountController from "./controllers/accountController"
-import HelloController from "./controllers/helloController"
-import { errorHandler } from "./errors/handler"
-import { catchAll } from "./utils/mw"
+import { errorHandler } from "./errors"
+import { accountRouter, helloRouter } from "./routers"
+import { catchAll } from "./utils"
 
 export const app = express()
 
@@ -24,15 +23,15 @@ const PUBLIC_DIR = path.resolve(__dirname, "..", "static")
 app.use(express.static(PUBLIC_DIR))
 
 /**
- * Register handlers for pre-processing requests before they reach the controller layer.
+ * Register handlers for pre-processing requests before they reach the routers.
  */
 app.use(express.json())
 
 /**
- * Register controllers.
+ * Register routers that pair API endpoints with business logic.
  */
-app.use("/accounts", new AccountController().routes())
-app.use("/api", new HelloController().routes())
+app.use("/accounts", accountRouter)
+app.use("/api", helloRouter)
 
 /**
  * Register "fall-through" handlers for dealing with garbage that the prior chain fails or refuses

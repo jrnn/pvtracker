@@ -1,4 +1,4 @@
-import { Document, Model, model, Schema } from "mongoose"
+import { Document, model, Model, Schema } from "mongoose"
 
 export interface IAccount {
   email: string
@@ -9,11 +9,14 @@ export interface IAccount {
   hasAccess?: boolean
 }
 
-export interface IAccountDocument extends Document, IAccount {
-  createdAt: Date,
-  updatedAt: Date,
-  fullName(): string
-  patch(account: IAccount): void
+export interface IAccountDocument extends IAccount, Document {
+  createdAt: Date
+  fullName: () => string
+  patch: (account: IAccount) => void
+  updatedAt: Date
+}
+
+interface IAccountModel extends Model<IAccountDocument> {
 }
 
 const schema = new Schema({
@@ -64,24 +67,24 @@ const schema = new Schema({
   }
 }, { timestamps: true })
 
-schema.methods.fullName = function() {
+schema.method("fullName", function() {
   return `${this.firstName} ${this.lastName}`
-}
+})
 
-schema.methods.patch = function(account: IAccount) {
+schema.method("patch", function(account: IAccount) {
   const okToPatch: (keyof IAccount)[] = [ "email", "firstName", "lastName" ]
-  okToPatch.map((key) => {
+  okToPatch.map(key => {
     if (key in account) {
       this[key] = account[key]
     }
   })
-}
+})
 
 schema.pre<IAccountDocument>("validate", async function(next) {
   await this.model("Account")
     .countDocuments({ email: this.email })
     .where({ _id: { $ne: this._id }})
-    .then((count) => {
+    .then(count => {
       if (count) {
         this.invalidate("email", "Email is already in use", this.email)
       }
@@ -89,4 +92,4 @@ schema.pre<IAccountDocument>("validate", async function(next) {
   next()
 })
 
-export const Account: Model<IAccountDocument> = model("Account", schema)
+export const AccountModel = model<IAccountDocument, IAccountModel>("Account", schema)

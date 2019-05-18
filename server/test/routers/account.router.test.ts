@@ -1,6 +1,7 @@
-import { api } from "../setup"
-import { Account, IAccount, IAccountDocument } from "../../src/models/account"
 import { Test } from "supertest"
+
+import { api } from "../setup"
+import { AccountModel, IAccount, IAccountDocument } from "../../src/models"
 
 const root = "/accounts"
 
@@ -22,10 +23,10 @@ const init = async () => {
       lastName: "Squarepants"
     }
   ]
-  await Account.deleteMany({}).exec()
+  await AccountModel.deleteMany({}).exec()
   await Promise.all(
     accounts.map((a) =>
-      new Account(a).save()
+      new AccountModel(a).save()
     )
   )
 }
@@ -51,7 +52,7 @@ describe("API: Account", async () => {
 
   describe(`GET ${root}`, async () => {
     it("returns all accounts as json", async () => {
-      const accounts = await Account.find().exec()
+      const accounts = await AccountModel.find().exec()
       const emails = accounts.map((a) => a.email)
       await api
         .get(root)
@@ -66,7 +67,7 @@ describe("API: Account", async () => {
 
   describe(`GET ${root}/:id`, async () => {
     it("returns the correct account as json", async () => {
-      const accounts = await Account.find().exec()
+      const accounts = await AccountModel.find().exec()
       const account = pickRandom(accounts)
       await api
         .get(`${root}/${account._id}`)
@@ -80,7 +81,7 @@ describe("API: Account", async () => {
     })
 
     it("fails if account does not exit", async () => {
-      const req = api.get(`${root}/${new Account()._id}`)
+      const req = api.get(`${root}/${new AccountModel()._id}`)
       await throwsError(req, 404, "NotFoundError")
     })
 
@@ -101,11 +102,11 @@ describe("API: Account", async () => {
         firstName: "Boaty",
         lastName: "McBoatface"
       }
-      accountsBefore = await Account.find().exec()
+      accountsBefore = await AccountModel.find().exec()
     })
 
     afterEach(async () => {
-      await Account
+      await AccountModel
         .deleteOne({ email: "boaty.mcboatface@pvtracker.com" })
         .exec()
     })
@@ -118,7 +119,7 @@ describe("API: Account", async () => {
 
     const hasNoEffect = async (test: Function) => {
       await test()
-      const accountsAfter = await Account.find().exec()
+      const accountsAfter = await AccountModel.find().exec()
       expect(accountsAfter.length).toBe(accountsBefore.length)
     }
 
@@ -137,7 +138,7 @@ describe("API: Account", async () => {
         .expect(201)
         .expect("content-type", /application\/json/)
 
-      const accountsAfter = await Account.find().exec()
+      const accountsAfter = await AccountModel.find().exec()
       expect(accountsAfter.length).toBe(accountsBefore.length + 1)
 
       accountsAfter
@@ -197,7 +198,7 @@ describe("API: Account", async () => {
         firstName: "Ned",
         lastName: "Flanders"
       }
-      original = await new Account(account).save()
+      original = await new AccountModel(account).save()
 
       put = (payload: any): Test => {
         return api
@@ -207,7 +208,7 @@ describe("API: Account", async () => {
     })
 
     afterEach(async () => {
-      await Account
+      await AccountModel
         .deleteOne({ _id: original._id })
         .exec()
     })
@@ -225,7 +226,7 @@ describe("API: Account", async () => {
         .expect(200)
         .expect("content-type", /application\/json/)
 
-      await Account
+      await AccountModel
         .findById(original._id)
         .then((patched) => {
           expect(patched.email).toBe(patch.email)
@@ -244,7 +245,7 @@ describe("API: Account", async () => {
         .expect(200)
         .expect("content-type", /application\/json/)
 
-      await Account
+      await AccountModel
         .findById(original._id)
         .then((patched) => {
           expect(patched.isAdmin).toBe(original.isAdmin)
@@ -257,7 +258,7 @@ describe("API: Account", async () => {
         .expect(200)
         .expect("content-type", /application\/json/)
 
-      await Account
+      await AccountModel
         .findById(original._id)
         .then((patched) => {
           expect(patched.hasAccess).toBe(original.hasAccess)
@@ -266,7 +267,7 @@ describe("API: Account", async () => {
 
     it("fails if account does not exit", async () => {
       const req = api
-        .put(`${root}/${new Account()._id}`)
+        .put(`${root}/${new AccountModel()._id}`)
         .send(patch)
       await throwsError(req, 404, "NotFoundError")
     })
@@ -297,7 +298,7 @@ describe("API: Account", async () => {
     })
 
     it("fails if email is already associated with another account", async () => {
-      const accounts = await Account
+      const accounts = await AccountModel
         .find({ _id: { $ne: original._id }})
         .exec()
       await invalidationTest("email", accounts.map((a) => a.email))

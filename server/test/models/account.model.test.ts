@@ -1,5 +1,6 @@
 import mongoose from "mongoose"
-import { Account, IAccount } from "../../src/models/account"
+
+import { AccountModel, IAccount } from "../../src/models"
 
 let account: IAccount
 
@@ -13,7 +14,7 @@ const testInvalidAttribute = async <T>(inputs: T[], attribute: string, errorMess
         ...account,
         [ attribute ]: input
       }
-      await new Account(_account).validate()
+      await new AccountModel(_account).validate()
         .catch((error) => {
           errorCount += 1
           expect(error).toBeInstanceOf(mongoose.Error.ValidationError)
@@ -46,11 +47,11 @@ describe("Models: Account", () => {
   })
 
   it("by default does not have admin rights", () => {
-    expect(new Account(account).isAdmin).toBe(false)
+    expect(new AccountModel(account).isAdmin).toBe(false)
   })
 
   it("by default has access rights", () => {
-    expect(new Account(account).hasAccess).toBe(true)
+    expect(new AccountModel(account).hasAccess).toBe(true)
   })
 
   it("detects invalid email format", async () => {
@@ -66,6 +67,6 @@ describe("Models: Account", () => {
 
   it("can tell its full name", () => {
     const fullName = `${account.firstName} ${account.lastName}`
-    expect(new Account(account).fullName()).toEqual(fullName)
+    expect(new AccountModel(account).fullName()).toEqual(fullName)
   })
 })
