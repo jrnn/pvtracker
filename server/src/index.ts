@@ -1,40 +1,17 @@
-import express from "express"
-import http from "http"
-import path from "path"
-import dotenv from "dotenv"
+/**
+ * Point of entry in development and production modes, where the API must be available for HTTP
+ * requests via a port, and a connection to an external MongoDB must be established. There is a
+ * separate setup for test mode, as both the API and DB are handled differently when running tests.
+ */
 
-import { DatabaseConnection } from "./config/db"
-import AccountController from "./controllers/accountController"
-import HelloController from "./controllers/helloController"
-import { errorHandler } from "./errors/handler"
-import * as mw from "./utils/mw"
+import { app } from "./app"
+import { db, DB_URI, MODE, PORT } from "./config"
 
-export const app = express()
-export const server = http.createServer(app)
-export const db = new DatabaseConnection()
-
-dotenv.config()
-
-app.use(express.static(path.resolve(__dirname, "..", "static")))
-app.use(express.json())
-app.use("/accounts", new AccountController().routes())
-app.use("/api", new HelloController().routes())
-app.use(errorHandler)
-app.use(mw.catchAll)
-
-const port = Number(process.env.PORT) || 7777
-server.listen(port, () => {
-  console.log(`pvtracker now listening on port ${port} in ${process.env.NODE_ENV} mode`)
-  if (process.env.NODE_ENV !== "test") {
-    db.connect(process.env.DB_URI, "external mongo database")
-  }
+app.listen(PORT, () => {
+  console.log(`pvtracker now listening on port ${PORT} in ${MODE} mode`)
+  db
+    .connect(DB_URI)
+    .catch(() => process.exit(1))
 })
 
-server.on("close", () => {
-  console.log("Now closing server and connection to database")
-  db.disconnect()
-})
-
-process.on("SIGTERM", () => {
-  server.close()
-})
+process.on("SIGTERM", () => db.disconnect())
